@@ -3,6 +3,7 @@ package message
 const (
 	LoginMesType    = "LoginMes"
 	LoginResMesType = "LoginResMes"
+	RegisterMesType = "RegisterMes"
 )
 
 // 消息传输的结构体 包括消息类型 和 消息体
@@ -22,4 +23,8 @@ type LoginMes struct {
 type LoginResMes struct {
 	Code  int    `json: "code"`  // 返回登录的状态码 200 表示登录成功
 	Error string `json: "error"` // 返回的错误信息
+}
+
+// 注册信息的结构体
+type RegisterMes struct {
 }

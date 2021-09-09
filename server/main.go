@@ -1,36 +1,16 @@
 package main
 
 import (
-	"fmt"
-	"net"
 	"chatRoom/common/message"
 	"encoding/binary"
-	"io"
 	"encoding/json"
+	"fmt"
+	"io"
+	"net"
 )
 
-// 处理客户端发送来的消息
-func process(conn net.Conn) {
-	// 1. 先延时关闭连接， 以方后面出问题
-	defer conn.Close()
-	// 2. for循环读取客户端的消息
-	for {
-		mes, err := readPkg(conn)
-		if err != nil {
-			if err == io.EOF {
-				fmt.Println("发生了灵异事件，我也溜了！！！")
-				return
-			}else {
-				fmt.Println("reakPkg err = ", err)
-				return
-			}
-		}
-		fmt.Println("客户端发来的消息为：", mes)
-	}
-}
-
-// 反序列化消息的函数
-func readPkg(conn net.Conn) (mes message.Message, err error){
+// 读取并解析消息
+func readPkg(conn net.Conn) (mes message.Message, err error) {
 	// 1. 先创建接收数据的buffer
 	buf := make([]byte, 8192)
 	// 2. 读取前4个字节获取消息的长度
@@ -40,8 +20,7 @@ func readPkg(conn net.Conn) (mes message.Message, err error){
 		return
 	}
 	// 3.	读取 [0:pkgLen]个字节 获取消息的内容, 并比较 pkgLen 和 真正获取的消息的长度，如果不一致先返回错误
-	var pkgLen uint32
-	pkgLen = binary.BigEndian.Uint32(buf[0:4])
+	pkgLen := binary.BigEndian.Uint32(buf[0:4])
 	n, err := conn.Read(buf[:pkgLen]) // 这里如果在读数据时conn断开 则err 为io.EOF
 	if n != int(pkgLen) || err != nil {
 		return
@@ -54,6 +33,120 @@ func readPkg(conn net.Conn) (mes message.Message, err error){
 		return
 	}
 	return
+}
+
+// 序列化（打包）并发送消息
+func writePkg(conn net.Conn, resMes *message.Message) (err error) {
+	data, err := json.Marshal(resMes)
+	if err != nil {
+		fmt.Println("json.Marshal(loginMes) err = ", err)
+		return
+	}
+
+	var buf [4]byte
+	pkgLen := uint32(len(data))
+
+	binary.BigEndian.PutUint32(buf[:4], pkgLen) // binary.BigEndian.PutUint32([]byte, uint32) 实现了将uint32数字转换成字节序列
+
+	n, err := conn.Write(buf[:4])
+	if n != 4 || err != nil {
+		fmt.Println("conn.Write len err = ", err)
+		return
+	}
+	// 3.2 发送消息体
+	_, err = conn.Write(data)
+	if err != nil {
+		fmt.Println("conn.Write data err = ", err)
+		return
+	}
+	fmt.Printf("服务器发送的消息长度 = %d， 消息内容 = %s\n", len(data), string(data))
+
+	return
+}
+
+// 处理登录消息
+func serverProcessLogin(conn net.Conn, mes *message.Message) (err error) {
+	// 对消息体反序列化后进行判断
+	// (1) 反序列化获取loginMes
+	var loginMes message.LoginMes
+	err = json.Unmarshal([]byte(mes.Data), &loginMes)
+	if err != nil {
+		fmt.Println("json.Unmarshal([]byte(mes.Data), &loginMes) err = ", err)
+		return
+	}
+
+	// (2) 判断登录信息是否正确,并将需要返回的消息整理好(判断前先声明要用的返回消息的结构体)
+	var resMes message.Message
+	var loginResMes message.LoginResMes
+	resMes.Type = message.LoginMesType
+	if loginMes.UserId == 100 && loginMes.UserPwd == "123456" {
+		loginResMes.Code = 100
+	} else {
+		loginResMes.Code = 500
+		loginResMes.Error = "登录用户不存在或密码错误，请注册或重新登录！"
+
+	}
+	data, err := json.Marshal(loginResMes)
+	if err != nil {
+		fmt.Println("json.Marshal(loginResMes) err = ", err)
+		return
+	}
+	resMes.Data = string(data)
+	// (3) 将写好的消息序列化后发出去
+	err = writePkg(conn, &resMes)
+	if err != nil {
+		fmt.Println("writePkg(conn, &resMes) err = ", err)
+	}
+	return
+}
+
+// 处理注册消息
+func serverProcessRegister(conn net.Conn, mes *message.Message) (err error) {
+	return
+}
+
+// 获取的消息类型， 根据消息类型做出相应的处理
+func serverProcessMes(conn net.Conn, mes *message.Message) (err error) {
+	switch mes.Type {
+	case message.LoginMesType:
+		// 做登录处理
+		err = serverProcessLogin(conn, mes)
+	case message.RegisterMesType:
+		err = serverProcessRegister(conn, mes)
+		// 做注册处理
+	default:
+		fmt.Println("消息类型不存在，无法处理...")
+	}
+	return
+}
+
+// 处理客户端发送来的消息
+func process(conn net.Conn) {
+	// 1. 先延时关闭连接， 以方后面出问题
+	defer conn.Close()
+	// 2. for循环读取客户端的消息
+	for {
+		mes, err := readPkg(conn)
+		if err != nil {
+			if err == io.EOF {
+				fmt.Println("发生了灵异事件，我也溜了！！！")
+				return
+			} else {
+				fmt.Println("reakPkg err = ", err)
+				return
+			}
+		}
+		fmt.Println("客户端发来的消息为：", mes)
+		// fmt.Println("客户端发来的消息类型为：", mes.Type)
+		// fmt.Printf("mes.Data==============类型%T， 值为%v\n", mes.Data, mes.Data)
+
+		// 3. 处理用户发送来的消息
+		err = serverProcessMes(conn, &mes)
+		if err != nil {
+			fmt.Println("serverProcessMes() 处理消息失败：", err)
+			return
+		}
+	}
 }
 
 func main() {

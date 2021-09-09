@@ -2,7 +2,6 @@ package main
 
 import (
 	"chatRoom/common/message"
-	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -32,36 +31,31 @@ func login(userId int, userPwd string) (err error) {
 		fmt.Println("json.Marshal(loginMes) err = ", err)
 		return
 	}
-	// fmt.Printf("检测序列化后的消息类型为切片：%T", data)
 	// 2.3 将序列化的消息为切片类型（[]uint8）再转换成字符串,并赋给mes中的Data字段
 	mes.Data = string(data)
-	data, err = json.Marshal(mes)
-	if err != nil {
-		fmt.Println("json.Marshal(mes) err = ", err)
-		return
-	}
-	// 3. 将处理过后的数据发送给服务器（先发送消息长度，再发送消息体）
-	// 3.1 因为conn.Write方法需要的参数是一个byte切片所以这里要把发送的信息进行转换    Write(b []byte) (n int, err error)
-	// 如何把消息的长度转换成切片？？？
-	// binary -> ByteOrder接口中的方法 实现了数字 与 字节的转化
-	
-	var buf [4]byte
-	pkgLen := uint32(len(data))
 
-	binary.BigEndian.PutUint32(buf[:4], pkgLen) // binary.BigEndian.PutUint32([]byte, uint32) 实现了将uint32数字转换成字节序列
+	// 3. 序列化（打包）并发送消息
+	err = writePkg(conn, &mes)
 
-	n, err := conn.Write(buf[:4])
-	if n != 4 || err != nil {
-		fmt.Println("conn.Write len err = ", err)
-		return
-	}
-	// 3.2 发送消息体
-	_, err = conn.Write(data)
+	// 4. 读取服务器返回来的消息
+	mes, err = readPkg(conn)
 	if err != nil {
-		fmt.Println("conn.Write data err = ", err)
+		fmt.Println("readPkg(conn) err = ", err)
 		return
 	}
-	fmt.Printf("客户端发送的消息长度 = %d， 消息内容 = %s\n", len(data), string(data))
+
+	// 5. 把读取到的数据中的Data反序列化并输出
+	var loginResMes message.LoginResMes
+	err = json.Unmarshal([]byte(mes.Data), &loginResMes)
+	if err != nil {
+		fmt.Println("json.Unmarshal([]byte(mes.Data), &loginResMes) err = ", err)
+		return
+	}
+	if loginResMes.Code == 100 {
+		fmt.Println("登录成功~")
+	} else {
+		fmt.Println(loginResMes.Error)
+	}
 
 	fmt.Println("等10s钟我就溜了。。。")
 	time.Sleep(time.Second * 10)
