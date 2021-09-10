@@ -1,13 +1,16 @@
 package utils
 
 import (
+	"chatRoom/common/message"
+	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"net"
 )
 
-type Transfer struct{
-	Conn net.conn
-	Buf [8192]byte
+type Transfer struct {
+	Conn net.Conn
+	Buf  [8192]byte
 }
 
 // 读取并解析消息
@@ -22,7 +25,7 @@ func (this *Transfer) ReadPkg() (mes message.Message, err error) {
 	}
 	// 3.	读取 [0:pkgLen]个字节 获取消息的内容, 并比较 pkgLen 和 真正获取的消息的长度，如果不一致先返回错误
 	pkgLen := binary.BigEndian.Uint32(this.Buf[0:4])
-	n, err := conn.Read(this.Buf[:pkgLen]) // 这里如果在读数据时conn断开 则err 为io.EOF
+	n, err := this.Conn.Read(this.Buf[:pkgLen]) // 这里如果在读数据时conn断开 则err 为io.EOF
 	if n != int(pkgLen) || err != nil {
 		return
 	}

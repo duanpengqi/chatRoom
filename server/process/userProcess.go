@@ -1,11 +1,19 @@
 package processdata
 
 import (
+	"chatRoom/common/message"
+	"chatRoom/server/utils"
+	"encoding/json"
 	"fmt"
+	"net"
 )
 
+type UserProcess struct {
+	Conn net.Conn
+}
+
 // 处理登录消息
-func serverProcessLogin(conn net.Conn, mes *message.Message) (err error) {
+func (this *UserProcess) ServerProcessLogin(mes *message.Message) (err error) {
 	// 对消息体反序列化后进行判断
 	// (1) 反序列化获取loginMes
 	var loginMes message.LoginMes
@@ -33,18 +41,18 @@ func serverProcessLogin(conn net.Conn, mes *message.Message) (err error) {
 	}
 	resMes.Data = string(data)
 	// (3) 将写好的消息序列化后发出去
+	Tf := &utils.Transfer{
+		Conn: this.Conn,
+	}
 
-
-
-	
-	err = writePkg(conn, &resMes)
+	err = Tf.WritePkg(&resMes)
 	if err != nil {
-		fmt.Println("writePkg(conn, &resMes) err = ", err)
+		fmt.Println("writePkg(&resMes) err = ", err)
 	}
 	return
 }
 
 // 处理注册消息
-func serverProcessRegister(conn net.Conn, mes *message.Message) (err error) {
+func (this *UserProcess) ServerProcessRegister(mes *message.Message) (err error) {
 	return
 }

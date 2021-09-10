@@ -1,15 +1,11 @@
 package main
 
 import (
-	"chatRoom/common/message"
-	"encoding/binary"
-	"encoding/json"
 	"fmt"
-	"io"
 	"net"
 )
 
-// 读取并解析消息
+/* // 读取并解析消息
 func readPkg(conn net.Conn) (mes message.Message, err error) {
 	// 1. 先创建接收数据的buffer
 	buf := make([]byte, 8192)
@@ -119,34 +115,18 @@ func serverProcessMes(conn net.Conn, mes *message.Message) (err error) {
 	}
 	return
 }
-
+*/
 // 处理客户端发送来的消息
 func process(conn net.Conn) {
 	// 1. 先延时关闭连接， 以方后面出问题
 	defer conn.Close()
 	// 2. for循环读取客户端的消息
-	for {
-		mes, err := readPkg(conn)
-		if err != nil {
-			if err == io.EOF {
-				fmt.Println("发生了灵异事件，我也溜了！！！")
-				return
-			} else {
-				fmt.Println("reakPkg err = ", err)
-				return
-			}
-		}
-		fmt.Println("客户端发来的消息为：", mes)
-		// fmt.Println("客户端发来的消息类型为：", mes.Type)
-		// fmt.Printf("mes.Data==============类型%T， 值为%v\n", mes.Data, mes.Data)
-
-		// 3. 处理用户发送来的消息
-		err = serverProcessMes(conn, &mes)
-		if err != nil {
-			fmt.Println("serverProcessMes() 处理消息失败：", err)
-			return
-		}
+	err := processDetial(conn)
+	if err != nil {
+		fmt.Println("processDetial(conn) err = ", err)
+		return
 	}
+
 }
 
 func main() {
