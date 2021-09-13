@@ -1,14 +1,19 @@
-package main
+package processdata
 
 import (
 	"chatRoom/common/message"
+	"chatRoom/server/utils"
 	"encoding/json"
 	"fmt"
 	"net"
 	"time"
 )
 
-func login(userId int, userPwd string) (err error) {
+type UserProcess struct {
+	// 暂时不需要字段， 我感觉可以把uerId和userPwd放进来
+}
+
+func (this *UserProcess) Login(userId int, userPwd string) (err error) {
 	// 1. 连接到服务器， 并延时关闭
 	conn, err := net.Dial("tcp", "localhost:8889")
 	if err != nil {
@@ -35,10 +40,13 @@ func login(userId int, userPwd string) (err error) {
 	mes.Data = string(data)
 
 	// 3. 序列化（打包）并发送消息
-	err = writePkg(conn, &mes)
+	tf := &utils.Transfer{
+		Conn: conn,
+	}
+	err = tf.WritePkg(&mes)
 
 	// 4. 读取服务器返回来的消息
-	mes, err = readPkg(conn)
+	mes, err = tf.ReadPkg()
 	if err != nil {
 		fmt.Println("readPkg(conn) err = ", err)
 		return
@@ -52,7 +60,12 @@ func login(userId int, userPwd string) (err error) {
 		return
 	}
 	if loginResMes.Code == 100 {
-		fmt.Println("登录成功~")
+		// fmt.Println("登录成功~")
+		// 1. 登录成功开启一个协程保持与服务器的连接
+		go serverProcessMes(conn)
+		// 2.后进入欢迎xxx登录成功界面
+		showMenu()
+		
 	} else {
 		fmt.Println(loginResMes.Error)
 	}
