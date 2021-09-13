@@ -35,6 +35,18 @@ func main() {
 				up.Login(userId, userPwd)
 			case 2 :
 				fmt.Println("注册用户：")
+				mt.Println("用户Id：")
+				fmt.Scan(&userId)
+				fmt.Print("密码：")
+				fmt.Scan(&userPwd)
+				fmt.Print("用户名：")
+				fmt.Scan(&userName)
+				// 创建一个UserProcess实例
+				up := &processdata.UserProcess{}
+				err := up.Register(userId, userPwd)
+				if err != nil {
+					fmt.Println("up.Register(userId, userPwd) err = ", err)
+				}
 			case 3 :
 				fmt.Println("退出系统！")
 				os.Exit(0)
