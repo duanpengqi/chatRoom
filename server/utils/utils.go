@@ -1,16 +1,16 @@
 package utils
 
 import (
-	"fmt"
-	"net"
 	"chatRoom/common/message"
 	"encoding/binary"
 	"encoding/json"
+	"fmt"
+	"net"
 )
 
-type Transfer struct{
+type Transfer struct {
 	Conn net.Conn
-	Buf [8192]byte
+	Buf  [8192]byte
 }
 
 // 读取并解析消息

@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
-	"time"
 	"chatRoom/client/utils"
 )
 
@@ -71,8 +70,5 @@ func (this *UserProcess) Login(userId int, userPwd string) (err error) {
 		fmt.Println(loginResMes.Error)
 	}
 
-	fmt.Println("等10s钟我就溜了。。。")
-	time.Sleep(time.Second * 10)
-	fmt.Println("10s到了我溜了。。。")
 	return
 }

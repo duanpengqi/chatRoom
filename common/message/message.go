@@ -1,9 +1,10 @@
 package message
 
 const (
-	LoginMesType    = "LoginMes"
-	LoginResMesType = "LoginResMes"
-	RegisterMesType = "RegisterMes"
+	LoginMesType       = "LoginMes"
+	LoginResMesType    = "LoginResMes"
+	RegisterMesType    = "RegisterMes"
+	RegisterResMesType = "RegisterResMes"
 )
 
 // 消息传输的结构体 包括消息类型 和 消息体
@@ -27,4 +28,11 @@ type LoginResMes struct {
 
 // 注册信息的结构体
 type RegisterMes struct {
+	User User `json: "user"`
+}
+
+// 注册之后，服务器返回的结构体
+type RegisterResMes struct {
+	Code  int    `json: "code"`  // 返回登录的状态码 200 表示注册成功
+	Error string `json: "error"` // 返回的错误信息
 }

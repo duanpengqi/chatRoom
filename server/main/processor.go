@@ -16,16 +16,19 @@ type Processor struct {
 
 // 根据消息类型做出相应的处理（这里反序列化将消息类型获取出来）
 func (this *Processor) ServerProcessMes(mes *message.Message) (err error) {
-	up := &processdata.UserProcess{
-		Conn: this.Conn,
-	}
 	switch mes.Type {
 	case message.LoginMesType:
+		up := &processdata.UserProcess{
+			Conn: this.Conn,
+		}
 		// 做登录处理
 		err = up.ServerProcessLogin(mes)
 	case message.RegisterMesType:
-		err = up.ServerProcessRegister(mes)
+		up := &processdata.UserProcess{
+			Conn: this.Conn,
+		}
 		// 做注册处理
+		err = up.ServerProcessRegister(mes)
 	default:
 		fmt.Println("消息类型不存在，无法处理...")
 	}

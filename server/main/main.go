@@ -1,8 +1,10 @@
 package main
 
 import (
+	"chatRoom/server/model"
 	"fmt"
 	"net"
+	"time"
 )
 
 // 处理客户端发送来的消息
@@ -15,9 +17,19 @@ func process(conn net.Conn) {
 	}
 	err := processor.ProcessDetial()
 	if err != nil {
-		fmt.Println("客户端和服务器的协程出现错误 err = ", err)
+		fmt.Println("processDetial(conn) err = ", err)
 		return
 	}
+}
+
+// 创建一个全局的UserDao
+func initUserDao() {
+	model.MyUserDao = model.NewUserDao(pool)
+}
+
+func init() {
+	initPool("localhost:6379", 16, 0, 300*time.Second)
+	initUserDao()
 }
 
 func main() {
@@ -41,5 +53,4 @@ func main() {
 		// 3. 开启一个协程，来为该客户服务
 		go process(conn)
 	}
-
 }
