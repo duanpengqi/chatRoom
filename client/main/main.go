@@ -3,6 +3,7 @@ package main
 import(
 	"fmt"
 	"os"
+	processdata"chatRoom/client/process"
 )
 
 var userId int
@@ -12,7 +13,7 @@ func main() {
 	// 接收用户的选择
 	var key int
 	// 判断是否继续显示菜单
-	var loop bool = false
+	// var loop bool = false
 
 	for {
 		fmt.Println("--------------欢迎来到多人聊天系统--------------")
@@ -25,6 +26,13 @@ func main() {
 		switch key {
 			case 1 :
 				fmt.Println("登录聊天室：")
+				fmt.Print("用户Id：")
+				fmt.Scan(&userId)
+				fmt.Print("密码：")
+				fmt.Scan(&userPwd)
+				// 调用用户登陆方法
+				up := &processdata.UserProcess{}
+				up.Login(userId, userPwd)
 			case 2 :
 				fmt.Println("注册用户：")
 			case 3 :
@@ -32,22 +40,6 @@ func main() {
 				os.Exit(0)
 			default : 
 				fmt.Println("输入有误, 请重新输入！")
-				loop = true
-		}
-
-		// 当选择了 1或2 后进入到具体的界面
-		if key == 1 {
-			fmt.Print("用户Id：")
-			fmt.Scan(&userId)
-			fmt.Print("密码：")
-			fmt.Scan(&userPwd)
-			login(userId, userPwd)
-		}else if key == 2 {
-			fmt.Println("欢迎来到注册用户界面~")
-		}
-		
-		if !loop {
-			return
 		}
 	}
 }

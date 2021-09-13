@@ -1,4 +1,4 @@
-package main
+package processdata
 
 import (
 	"chatRoom/common/message"
@@ -6,9 +6,15 @@ import (
 	"fmt"
 	"net"
 	"time"
+	"chatRoom/client/utils"
 )
 
-func login(userId int, userPwd string) (err error) {
+// 声明一个UserProcess结构体
+type UserProcess struct{
+	// 暂时不需要字段 但我感觉可以把 userID 和 userPwd 放进来
+}
+
+func (this *UserProcess) Login(userId int, userPwd string) (err error) {
 	// 1. 连接到服务器， 并延时关闭
 	conn, err := net.Dial("tcp", "localhost:8889")
 	if err != nil {
@@ -35,10 +41,13 @@ func login(userId int, userPwd string) (err error) {
 	mes.Data = string(data)
 
 	// 3. 序列化（打包）并发送消息
-	err = writePkg(conn, &mes)
+	tf := &utils.Transfer{
+		Conn: conn,
+	}
+	err = tf.WritePkg(&mes)
 
 	// 4. 读取服务器返回来的消息
-	mes, err = readPkg(conn)
+	mes, err = tf.ReadPkg()
 	if err != nil {
 		fmt.Println("readPkg(conn) err = ", err)
 		return
@@ -51,8 +60,13 @@ func login(userId int, userPwd string) (err error) {
 		fmt.Println("json.Unmarshal([]byte(mes.Data), &loginResMes) err = ", err)
 		return
 	}
-	if loginResMes.Code == 100 {
-		fmt.Println("登录成功~")
+	if loginResMes.Code == 200 {
+		// fmt.Println("登录成功~")
+		// 登陆成功后
+		// 1. 开启偷偷监听消息的携程
+		go serverProcessMes(conn)
+		// 2. for循环展示用户需要的菜单
+		showMenu()
 	} else {
 		fmt.Println(loginResMes.Error)
 	}

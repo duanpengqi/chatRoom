@@ -2,10 +2,18 @@ package processdata
 
 import (
 	"fmt"
+	"net"
+	"chatRoom/server/utils"
+	"chatRoom/common/message"
+	"encoding/json"
 )
 
+type UserProcess struct {
+	Conn net.Conn
+}
+
 // 处理登录消息
-func serverProcessLogin(conn net.Conn, mes *message.Message) (err error) {
+func (this *UserProcess) ServerProcessLogin(mes *message.Message) (err error) {
 	// 对消息体反序列化后进行判断
 	// (1) 反序列化获取loginMes
 	var loginMes message.LoginMes
@@ -20,7 +28,7 @@ func serverProcessLogin(conn net.Conn, mes *message.Message) (err error) {
 	var loginResMes message.LoginResMes
 	resMes.Type = message.LoginMesType
 	if loginMes.UserId == 100 && loginMes.UserPwd == "123456" {
-		loginResMes.Code = 100
+		loginResMes.Code = 200
 	} else {
 		loginResMes.Code = 500
 		loginResMes.Error = "登录用户不存在或密码错误，请注册或重新登录！"
@@ -33,18 +41,17 @@ func serverProcessLogin(conn net.Conn, mes *message.Message) (err error) {
 	}
 	resMes.Data = string(data)
 	// (3) 将写好的消息序列化后发出去
-
-
-
-	
-	err = writePkg(conn, &resMes)
+	tf := &utils.Transfer{
+		Conn: this.Conn,
+	}
+	err = tf.WritePkg(&resMes)
 	if err != nil {
-		fmt.Println("writePkg(conn, &resMes) err = ", err)
+		fmt.Println("writePkg(&resMes) err = ", err)
 	}
 	return
 }
 
 // 处理注册消息
-func serverProcessRegister(conn net.Conn, mes *message.Message) (err error) {
+func (this *UserProcess) ServerProcessRegister(mes *message.Message) (err error) {
 	return
 }
