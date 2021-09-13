@@ -13,7 +13,7 @@ func main() {
 	// 接收用户的选择
 	var key int
 	// 判断是否继续显示菜单
-	var loop bool = false
+	// var loop bool = false
 
 	for {
 		fmt.Println("--------------欢迎来到多人聊天系统--------------")
@@ -44,11 +44,6 @@ func main() {
 			os.Exit(0)
 		default:
 			fmt.Println("输入有误, 请重新输入！")
-			loop = true
-		}
-
-		if !loop {
-			return
 		}
 	}
 }

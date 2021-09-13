@@ -1,7 +1,7 @@
 package processdata
 
 import (
-	"chatRoom/server/utils"
+	"chatRoom/client/utils"
 	"fmt"
 	"net"
 	"os"

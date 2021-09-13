@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"chatRoom/common/message"
@@ -18,7 +18,7 @@ func (this *Transfer) ReadPkg() (mes message.Message, err error) {
 	// 1. 先创建接收数据的buffer
 	// buf := make([]byte, 8192)
 	// 2. 读取前4个字节获取消息的长度
-	fmt.Println("读取客户端发送过来的数据...")
+	fmt.Println("读取服务器推送过来的数据...")
 	_, err = this.Conn.Read(this.Buf[:4])
 	if err != nil {
 		return
@@ -63,7 +63,7 @@ func (this *Transfer) WritePkg(resMes *message.Message) (err error) {
 		fmt.Println("conn.Write data err = ", err)
 		return
 	}
-	fmt.Printf("服务器发送的消息长度 = %d， 消息内容 = %s\n", len(data), string(data))
+	fmt.Printf("客户端发送的消息长度 = %d， 消息内容 = %s\n", len(data), string(data))
 
 	return
 }

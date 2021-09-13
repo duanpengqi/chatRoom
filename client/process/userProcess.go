@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
-	"time"
 )
 
 type UserProcess struct {
@@ -59,19 +58,16 @@ func (this *UserProcess) Login(userId int, userPwd string) (err error) {
 		fmt.Println("json.Unmarshal([]byte(mes.Data), &loginResMes) err = ", err)
 		return
 	}
-	if loginResMes.Code == 100 {
+	if loginResMes.Code == 200 {
 		// fmt.Println("登录成功~")
 		// 1. 登录成功开启一个协程保持与服务器的连接
 		go serverProcessMes(conn)
 		// 2.后进入欢迎xxx登录成功界面
 		showMenu()
-		
+
 	} else {
 		fmt.Println(loginResMes.Error)
 	}
 
-	fmt.Println("等10s钟我就溜了。。。")
-	time.Sleep(time.Second * 10)
-	fmt.Println("10s到了我溜了。。。")
 	return
 }
