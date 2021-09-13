@@ -39,7 +39,7 @@ func (this *UserProcess) ServerProcessLogin(mes *message.Message) (err error) {
 	if err != nil {
 		if err == model.ERROR_USER_NOTEXISTS {
 			loginResMes.Code = 500
-			loginResMes.Error = err.Error()
+			loginResMes.Error = err.Error() // Error() 将err中的信息取出来
 		} else if err == model.ERROR_USER_PWD {
 			loginResMes.Code = 403
 			loginResMes.Error = err.Error()
