@@ -1,15 +1,15 @@
 package processdata
 
 import (
+	"chatRoom/client/utils"
 	"chatRoom/common/message"
 	"encoding/json"
 	"fmt"
 	"net"
-	"chatRoom/client/utils"
 )
 
 // 声明一个UserProcess结构体
-type UserProcess struct{
+type UserProcess struct {
 	// 暂时不需要字段 但我感觉可以把 userID 和 userPwd 放进来
 }
 
@@ -65,9 +65,7 @@ func (this *UserProcess) Register(userId int, userPwd string, userName string) (
 		return
 	} else {
 		fmt.Println(registerResMes.Error)
-		return
 	}
-
 	return
 }
 
