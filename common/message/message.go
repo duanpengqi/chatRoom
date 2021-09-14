@@ -22,8 +22,9 @@ type LoginMes struct {
 
 // 服务器对登录信息返回的结构体
 type LoginResMes struct {
-	Code  int    `json: "code"`  // 返回登录的状态码 200 表示登录成功
-	Error string `json: "error"` // 返回的错误信息
+	Code    int    `json: "code"`   // 返回登录的状态码 200 表示登录成功
+	UsersId []int  `json: "userId"` // 返回在线用户的userId
+	Error   string `json: "error"`  // 返回的错误信息
 }
 
 // 注册信息的结构体

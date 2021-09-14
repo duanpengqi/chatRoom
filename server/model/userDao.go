@@ -1,6 +1,7 @@
 package model
 
 import (
+	"chatRoom/common/message"
 	"encoding/json"
 	"fmt"
 
@@ -47,7 +48,7 @@ func (this *UserDao) GetUserById(conn redis.Conn, userId int) (user *User, err e
 	return
 }
 
-// // 用户登录时， 根据用户的userId在redis-users中查询
+// 用户登录时， 根据用户的userId在redis-users中查询
 func (this *UserDao) Login(userId int, userPwd string) (user *User, err error) {
 	// 1. 根据userId查询redis-users
 	conn := this.pool.Get()
@@ -63,5 +64,30 @@ func (this *UserDao) Login(userId int, userPwd string) (user *User, err error) {
 		err = ERROR_USER_PWD
 		return
 	}
+	return
+}
+
+// 用户注册时， 根据用户的userId把数据插入redis-users中
+func (this *UserDao) Register(User *message.User) (err error) {
+	// 1. 根据userId查询redis-users（操作redis时先从连接池中取出一根连接）
+	conn := this.pool.Get()
+	defer conn.Close()
+
+	_, err = this.GetUserById(conn, User.UserId)
+	if err == nil { // 如果err == nil 说明用户已经存在
+		err = ERROR_USER_EXISTS
+		return
+	}
+
+	// 2. 将要添加到redis的数据进行序列化
+	data, err := json.Marshal(User)
+
+	// 3. 走到这说明用户不在redis中 将数据添加到redis中
+	_, err = conn.Do("HSet", "users", User.UserId, string(data)) // 因为data为byte切片，所以要转化成字符串
+	if err != nil {
+		fmt.Println("conn.Do(\"HSet\", \"users\", User.UserId, string(data)) err = ", err)
+		return
+	}
+
 	return
 }

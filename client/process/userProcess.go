@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"os"
 )
 
 // 声明一个UserProcess结构体
@@ -61,8 +62,8 @@ func (this *UserProcess) Register(userId int, userPwd string, userName string) (
 		return
 	}
 	if registerResMes.Code == 200 {
-		fmt.Println("注册成功~")
-		return
+		fmt.Println("注册成功, 重新登录一把~")
+		os.Exit(0)
 	} else {
 		fmt.Println(registerResMes.Error)
 	}
@@ -118,6 +119,16 @@ func (this *UserProcess) Login(userId int, userPwd string) (err error) {
 	if loginResMes.Code == 200 {
 		// fmt.Println("登录成功~")
 		// 登陆成功后
+		// 0. 暂时展示一下在线用户列表
+		fmt.Println()
+		fmt.Println("在线用户列表：", loginResMes.UsersId)
+		for _, v := range loginResMes.UsersId {
+			if v == userId {
+				continue
+			}
+			fmt.Println(v)
+		}
+		fmt.Println()
 		// 1. 开启偷偷监听消息的携程
 		go serverProcessMes(conn)
 		// 2. for循环展示用户需要的菜单
