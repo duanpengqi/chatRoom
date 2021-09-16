@@ -2,6 +2,7 @@ package processdata
 
 import (
 	"chatRoom/client/utils"
+	"chatRoom/common/message"
 	"fmt"
 	"net"
 	"os"
@@ -43,14 +44,21 @@ func serverProcessMes(conn net.Conn) (err error) {
 	}
 	// 2. 循环监听与服务器连接的通道
 	for {
-		fmt.Println("================客户端正在等待服务器推送消息====================")
+		// fmt.Println("================客户端正在等待服务器推送消息====================")
 		mes, err := tf.ReadPkg()
 		if err != nil {
 			fmt.Println("tf.ReadPkg() err = ", err)
 			return err
 		}
-
-		fmt.Println("读取到服务器发送来的推送！ mes = ", mes)
+		fmt.Println("服务器推送来了消息： ", mes)
+		// 判断消息类型分别处理
+		switch mes.Type {
+		case message.NotifyUserStatusMesType:
+			// 用户上线提醒
+			updateUserStatus(mes.Data)
+		default:
+			fmt.Println("服务器返回的消息类型不匹配！")
+		}
 	}
 
 }

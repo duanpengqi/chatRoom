@@ -1,10 +1,18 @@
 package message
 
 const (
-	LoginMesType       = "LoginMes"
-	LoginResMesType    = "LoginResMes"
-	RegisterMesType    = "RegisterMes"
-	RegisterResMesType = "RegisterResMes"
+	LoginMesType            = "LoginMes"
+	LoginResMesType         = "LoginResMes"
+	RegisterMesType         = "RegisterMes"
+	RegisterResMesType      = "RegisterResMes"
+	NotifyUserStatusMesType = "NotifyUserStatusMes"
+)
+
+// 用户的状态常量
+const (
+	UserOnline = iota
+	UserOffline
+	UserBusyStatus
 )
 
 // 消息传输的结构体 包括消息类型 和 消息体
@@ -36,4 +44,10 @@ type RegisterMes struct {
 type RegisterResMes struct {
 	Code  int    `json: "code"`  // 返回登录的状态码 200 表示注册成功
 	Error string `json: "error"` // 返回的错误信息
+}
+
+// 当有用户状态发生变化之后返回的消息的结构体
+type NotifyUserStatusMes struct {
+	UserId int `json: "userId"` // 返回用户的Id，其他用户用来管理好友的状态
+	Status int `json: "status"` // 用数字来表示用户的状态
 }

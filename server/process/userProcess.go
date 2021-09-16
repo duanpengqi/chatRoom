@@ -28,7 +28,7 @@ func (this *UserProcess) ServerProcessLogin(mes *message.Message) (err error) {
 	// (2) 判断登录信息是否正确,并将需要返回的消息整理好(判断前先声明要用的返回消息的结构体)
 	var resMes message.Message
 	var loginResMes message.LoginResMes
-	resMes.Type = message.LoginMesType
+	resMes.Type = message.LoginResMesType
 	// if loginMes.UserId == 100 && loginMes.UserPwd == "123456" {
 	// 	loginResMes.Code = 100
 	// } else {
@@ -53,7 +53,9 @@ func (this *UserProcess) ServerProcessLogin(mes *message.Message) (err error) {
 		fmt.Println(user, "登录成功~")
 		// a. 登录成功后将自己添加到在线用户列表中
 		userMgr.AddOnlineUser(this)
-		// b. 然后将userMgr.onlineUsers中的用户id添加到返回信息中
+		// b. 将自己登录的状态告诉其他用户
+		this.NotifyOtheronlineUsers(loginMes.UserId)
+		// c. 然后将userMgr.onlineUsers中的用户id添加到返回信息中
 		for k, _ := range userMgr.onlineUsers {
 			loginResMes.UsersId = append(loginResMes.UsersId, k)
 		}
@@ -125,4 +127,44 @@ func (this *UserProcess) ServerProcessRegister(mes *message.Message) (err error)
 		fmt.Println("writePkg(&resMes) err = ", err)
 	}
 	return
+}
+
+// 当有用户状态发生变化通知其他好友
+func (this *UserProcess) NotifyOtheronlineUsers(userId int) {
+	// 循环告诉userMgr.onlineUsers中的用户
+	for id, up := range userMgr.onlineUsers {
+		if id == userId {
+			continue
+		}
+		up.NotifyMeOnline(id)
+	}
+}
+
+// 真正打包消息通知好友
+func (this *UserProcess) NotifyMeOnline(userId int) {
+	// 1. 整理要返回的消息
+	var mes message.Message
+	var notifyUserStatusMes message.NotifyUserStatusMes
+
+	mes.Type = message.NotifyUserStatusMesType
+	notifyUserStatusMes.UserId = userId
+	notifyUserStatusMes.Status = message.UserOnline
+
+	// 2. 将notifyUserStatusMes序列化赋值给mes
+	data, err := json.Marshal(notifyUserStatusMes)
+	if err != nil {
+		fmt.Println("json.Marshal(notifyUserStatusMes) err = ", err)
+		return
+	}
+	mes.Data = string(data)
+
+	// 3. 将整理好的消息推出去
+	tf := &utils.Transfer{
+		Conn: this.Conn,
+	}
+	err = tf.WritePkg(&mes)
+	if err != nil {
+		fmt.Println("tf.WritePkg(&mes) err = ", err)
+		return
+	}
 }

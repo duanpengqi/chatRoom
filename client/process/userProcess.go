@@ -121,12 +121,17 @@ func (this *UserProcess) Login(userId int, userPwd string) (err error) {
 		// 登陆成功后
 		// 0. 暂时展示一下在线用户列表
 		fmt.Println()
-		fmt.Println("在线用户列表：", loginResMes.UsersId)
+		fmt.Println("当前在线用户列表：")
 		for _, v := range loginResMes.UsersId {
 			if v == userId {
 				continue
 			}
 			fmt.Println(v)
+			// 将在线用户拿过来自己也管理一份
+			var user message.User
+			user.UserId = v
+			user.UserStatus = message.UserOnline
+			onlineUsers[v] = &user
 		}
 		fmt.Println()
 		// 1. 开启偷偷监听消息的携程
