@@ -10,6 +10,8 @@ import (
 
 // 显示登录成功后的界面
 func showMenu() {
+	var key int
+	var content string
 	for {
 		fmt.Println("--------------欢迎xxx登录成功--------------")
 		fmt.Println("                1.在线用户")
@@ -17,13 +19,20 @@ func showMenu() {
 		fmt.Println("                3.消息列表")
 		fmt.Println("                4.退出系统")
 		fmt.Println("请选择（1-4）：")
-		var key int
-		fmt.Scan(&key)
+		fmt.Scanf("%d\n", &key)
 		switch key {
 		case 1:
-			fmt.Println("显示在线用户列表~")
+			outputOnlineuser()
 		case 2:
-			fmt.Println("发送消息~")
+			fmt.Println("请输入要发送的内容：")
+			fmt.Scanf("%s\n", &content)
+			// 创建SmsProcess实例，调用短消息发送处理函数
+			sp := &SmsProcess{}
+			err := sp.SendGroupMes(content)
+			if err != nil {
+				fmt.Println("sp.SendGroupMes(content) err = ", err)
+				return
+			}
 		case 3:
 			fmt.Println("展示消息列表~")
 		case 4:
@@ -50,7 +59,7 @@ func serverProcessMes(conn net.Conn) (err error) {
 			fmt.Println("tf.ReadPkg() err = ", err)
 			return err
 		}
-		fmt.Println("服务器推送来了消息： ", mes)
+		fmt.Println("服务器推送来了消息 ================ ", mes)
 		// 判断消息类型分别处理
 		switch mes.Type {
 		case message.NotifyUserStatusMesType:

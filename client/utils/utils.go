@@ -40,8 +40,8 @@ func (this *Transfer) ReadPkg() (mes message.Message, err error) {
 }
 
 // 序列化（打包）并发送消息
-func (this *Transfer) WritePkg(resMes *message.Message) (err error) {
-	data, err := json.Marshal(resMes)
+func (this *Transfer) WritePkg(mes *message.Message) (err error) {
+	data, err := json.Marshal(mes)
 	if err != nil {
 		fmt.Println("json.Marshal(loginMes) err = ", err)
 		return

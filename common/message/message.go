@@ -6,6 +6,7 @@ const (
 	RegisterMesType         = "RegisterMes"
 	RegisterResMesType      = "RegisterResMes"
 	NotifyUserStatusMesType = "NotifyUserStatusMes"
+	SmsMesType              = "SmsMes"
 )
 
 // 用户的状态常量
@@ -50,4 +51,10 @@ type RegisterResMes struct {
 type NotifyUserStatusMes struct {
 	UserId int `json: "userId"` // 返回用户的Id，其他用户用来管理好友的状态
 	Status int `json: "status"` // 用数字来表示用户的状态
+}
+
+// 发送短消息的结构体
+type SmsMes struct {
+	User           // 使用匿名结构体， 继承User结构体中的字段和方法
+	Content string `json: "content"` // 发送消息的内容
 }

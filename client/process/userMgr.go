@@ -8,6 +8,7 @@ import (
 
 var onlineUsers map[int]*message.User = make(map[int]*message.User, 20)
 
+// 更新用户状态
 func updateUserStatus(data string) {
 	// 1. 先解析数据
 	var notifyUserStatusMes message.NotifyUserStatusMes
@@ -30,6 +31,7 @@ func updateUserStatus(data string) {
 	}
 	user.UserStatus = notifyUserStatusMes.Status
 	onlineUsers[notifyUserStatusMes.UserId] = user
+
 
 	// 3. 重新展示在线用户
 	outputOnlineuser()

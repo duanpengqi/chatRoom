@@ -136,7 +136,7 @@ func (this *UserProcess) NotifyOtheronlineUsers(userId int) {
 		if id == userId {
 			continue
 		}
-		up.NotifyMeOnline(id)
+		up.NotifyMeOnline(userId) // !!! 这里应该传登录用户的userId, 而不是要被通知的用户的id
 	}
 }
 

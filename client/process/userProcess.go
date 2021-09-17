@@ -1,6 +1,7 @@
 package processdata
 
 import (
+	"chatRoom/client/model"
 	"chatRoom/client/utils"
 	"chatRoom/common/message"
 	"encoding/json"
@@ -8,6 +9,8 @@ import (
 	"net"
 	"os"
 )
+
+var CurUser model.CurUser
 
 // 声明一个UserProcess结构体
 type UserProcess struct {
@@ -134,9 +137,13 @@ func (this *UserProcess) Login(userId int, userPwd string) (err error) {
 			onlineUsers[v] = &user
 		}
 		fmt.Println()
-		// 1. 开启偷偷监听消息的携程
+		// 1. 初始化curUser实例， 用来保存当前用户相关信息
+		CurUser.Conn = conn
+		CurUser.UserId = userId
+		CurUser.UserStatus = message.UserOnline
+		// 2. 开启偷偷监听消息的携程
 		go serverProcessMes(conn)
-		// 2. for循环展示用户需要的菜单
+		// 3. for循环展示用户需要的菜单
 		showMenu()
 	} else {
 		fmt.Println(loginResMes.Error)
