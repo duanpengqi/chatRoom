@@ -39,3 +39,4 @@ func (this *SmsProcess) SendGroupMes(content string) (err error) {
 
 	return
 }
+

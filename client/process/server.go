@@ -59,12 +59,15 @@ func serverProcessMes(conn net.Conn) (err error) {
 			fmt.Println("tf.ReadPkg() err = ", err)
 			return err
 		}
-		fmt.Println("服务器推送来了消息 ================ ", mes)
 		// 判断消息类型分别处理
 		switch mes.Type {
 		case message.NotifyUserStatusMesType:
 			// 用户上线提醒
 			updateUserStatus(mes.Data)
+		case message.SmsMesType:
+			// fmt.Println("短消息 =========== ", mes)
+			// 有新的群消息
+			outputGroupMes(mes.Data)
 		default:
 			fmt.Println("服务器返回的消息类型不匹配！")
 		}

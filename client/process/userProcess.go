@@ -17,6 +17,7 @@ type UserProcess struct {
 	// 暂时不需要字段 但我感觉可以把 userID 和 userPwd 放进来
 }
 
+// 注册
 func (this *UserProcess) Register(userId int, userPwd string, userName string) (err error) {
 	// 1. 连接到服务器， 并延时关闭
 	conn, err := net.Dial("tcp", "localhost:8889")
@@ -73,6 +74,7 @@ func (this *UserProcess) Register(userId int, userPwd string, userName string) (
 	return
 }
 
+// 登录
 func (this *UserProcess) Login(userId int, userPwd string) (err error) {
 	// 1. 连接到服务器， 并延时关闭
 	conn, err := net.Dial("tcp", "localhost:8889")

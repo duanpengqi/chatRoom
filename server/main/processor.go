@@ -22,13 +22,17 @@ func (this *Processor) ServerProcessMes(mes *message.Message) (err error) {
 			Conn: this.Conn,
 		}
 		// 做登录处理
-		err = up.ServerProcessLogin(mes)
+		up.ServerProcessLogin(mes)
 	case message.RegisterMesType:
 		up := &processdata.UserProcess{
 			Conn: this.Conn,
 		}
 		// 做注册处理
-		err = up.ServerProcessRegister(mes)
+		up.ServerProcessRegister(mes)
+	case message.SmsMesType:
+		sp := &processdata.SmsProcess{}
+		// 转发群聊短消息
+		sp.SendGroupMes(mes)
 	default:
 		fmt.Println("消息类型不存在，无法处理...")
 	}
